@@ -1,0 +1,86 @@
+import json
+
+class ContactBook:
+    def __init__(self, filename):
+        self.filename = filename
+        self.contacts = {}
+        self.load_contacts()
+
+    def add_contact(self, name, phone, email="N/A"):
+        self.contacts[name] = {"phone": phone, "email": email}
+        return self.contacts
+
+    def search_contact(self, name):
+        if name in self.contacts:
+            print(f"\nName: {name}")
+            for key, value in self.contacts[name].items():
+                print(f"{key}: {value}")
+            return self.contacts[name]
+        else:
+            print("Contact not found.")
+            return None
+
+    def delete_contact(self, name):
+        if name in self.contacts:
+            del self.contacts[name]
+            print("Contact deleted.")
+        else:
+            print("Contact not found.")
+
+    def list_all_contacts(self):
+        if self.contacts:
+            print("\n--- All Contacts ---")
+            for contact in self.contacts:
+                print(f"{contact} | {self.contacts[contact]['phone']}")
+        else:
+            print("No contacts saved.")
+
+    def save_contacts(self):
+        with open(self.filename, "w") as f:
+            json.dump(self.contacts, f)
+        print("Contacts saved.")
+
+    def load_contacts(self):
+        try:
+            with open(self.filename, "r") as f:
+                self.contacts = json.load(f)
+        except FileNotFoundError:
+            self.contacts = {}
+
+
+def main():
+    book = ContactBook("contacts.json")
+
+    while True:
+        print("""
+--- Contact Book ---
+1. Add contact
+2. Search contact
+3. List all contacts
+4. Delete contact
+5. Save & quit
+        """)
+
+        choice = input("Choose an option: ")
+
+        match choice:
+            case "1":
+                name = input("Name: ")
+                phone = input("Phone: ")
+                email = input("Email (press Enter to skip): ") or "N/A"
+                book.add_contact(name, phone, email)
+            case "2":
+                name = input("Name to search: ")
+                book.search_contact(name)
+            case "3":
+                book.list_all_contacts()
+            case "4":
+                name = input("Name to delete: ")
+                book.delete_contact(name)
+            case "5":
+                book.save_contacts()
+                break
+            case _:
+                print("Invalid option, try again.")
+
+main()
